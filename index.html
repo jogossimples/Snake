@@ -79,6 +79,8 @@
       document.querySelectorAll('.controles').forEach((el) => {
         el.style.display = 'flex';
       });
+      ctx.fillStyle = '         
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
       desenhar();
     });
     document.addEventListener('keydown', (e) => {
@@ -128,7 +130,7 @@
     }
     function desenhar() {
       if (jogoIniciado) {
-        ctx.fillStyle = '         
+        ctx.fillStyle = '#3E8E41';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         cobra.forEach((parte, index) => {
           if (index === 0) {
@@ -212,4 +214,5 @@
     }
   </script>
 </body>
-</html>
+  </html>
+  
