@@ -72,17 +72,19 @@
     let cobraBrilhando = false;
     let tempoBrilho = 0;
     let jogoIniciado = false;
-    document.getElementById('start').addEventListener('click', () => {
+
+    document.getElementById('start').addEventListener('click', iniciarJogo);
+
+    function iniciarJogo() {
       jogoIniciado = true;
       document.getElementById('inicio').style.display = 'none';
       canvas.style.display = 'block';
       document.querySelectorAll('.controles').forEach((el) => {
         el.style.display = 'flex';
       });
-      ctx.fillStyle = '         
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
       desenhar();
-    });
+    }
+
     document.addEventListener('keydown', (e) => {
       if (jogoIniciado) controlar(e.key);
     });
@@ -106,6 +108,7 @@
           break;
       }
     });
+
     function controlar(key) {
       switch (key) {
         case 'ArrowUp':
@@ -122,15 +125,17 @@
           break;
       }
     }
+
     function gerarComida() {
       return {
         x: Math.floor(Math.random() * colunas),
         y: Math.floor(Math.random() * linhas),
       };
     }
+
     function desenhar() {
       if (jogoIniciado) {
-        ctx.fillStyle = '#3E8E41';
+        ctx.fillStyle = '         
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         cobra.forEach((parte, index) => {
           if (index === 0) {
@@ -214,5 +219,4 @@
     }
   </script>
 </body>
-  </html>
-  
+</html>
