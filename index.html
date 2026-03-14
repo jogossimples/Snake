@@ -10,8 +10,8 @@
       background-color: #fff;
     }
     #canvas {
-      width: 50vw;
-      height: 50vh;
+      width: 100%;
+      height: 80vh;
       border: 1px solid black;
     }
     .controles {
@@ -56,11 +56,10 @@
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     const escala = 20;
-    canvas.width = window.innerWidth / 2;
-    canvas.height = window.innerHeight / 2;
-    const linhas = canvas.height / escala;
-    const colunas = canvas.width / escala;
-
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight * 0.8;
+    const linhas = Math.floor(canvas.height / escala);
+    const colunas = Math.floor(canvas.width / escala);
     let cobra = [
       {x: Math.floor(colunas / 2), y: Math.floor(linhas / 2)},
     ];
@@ -70,7 +69,6 @@
     let cobraBrilhando = false;
     let tempoBrilho = 0;
     let jogoIniciado = false;
-
     document.getElementById('start').addEventListener('click', () => {
       jogoIniciado = true;
       document.getElementById('inicio').style.display = 'none';
@@ -80,11 +78,9 @@
       });
       desenhar();
     });
-
     document.addEventListener('keydown', (e) => {
       if (jogoIniciado) controlar(e.key);
     });
-
     document.getElementById('cima').addEventListener('click', () => controlar('ArrowUp'));
     document.getElementById('baixo').addEventListener('click', () => controlar('ArrowDown'));
     document.getElementById('esquerda').addEventListener('click', () => controlar('ArrowLeft'));
@@ -105,7 +101,6 @@
           break;
       }
     });
-
     function controlar(key) {
       switch (key) {
         case 'ArrowUp':
@@ -122,14 +117,12 @@
           break;
       }
     }
-
     function gerarComida() {
       return {
         x: Math.floor(Math.random() * colunas),
         y: Math.floor(Math.random() * linhas),
       };
     }
-
     function desenhar() {
       if (jogoIniciado) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -141,7 +134,6 @@
           }
           ctx.fillRect(parte.x * escala, parte.y * escala, escala, escala);
         });
-
         if (cobraBrilhando) {
           tempoBrilho++;
           if (tempoBrilho > 20) {
@@ -149,13 +141,10 @@
             tempoBrilho = 0;
           }
         }
-
         ctx.fillStyle = 'red';
         ctx.fillRect(comida.x * escala, comida.y * escala, escala, escala);
-
         let cabeca = cobra[0];
         let novaCabeca;
-
         switch (direcao) {
           case 'cima':
             novaCabeca = {x: cabeca.x, y: cabeca.y - 1};
@@ -170,9 +159,7 @@
             novaCabeca = {x: cabeca.x + 1, y: cabeca.y};
             break;
         }
-
         cobra.unshift(novaCabeca);
-
         if (novaCabeca.x === comida.x && novaCabeca.y === comida.y) {
           pontos++;
           comida = gerarComida();
@@ -181,7 +168,6 @@
         } else {
           cobra.pop();
         }
-
         if (
           novaCabeca.x < 0 ||
           novaCabeca.x >= colunas ||
@@ -203,7 +189,6 @@
             el.style.display = 'none';
           });
         }
-
         ctx.font = '24px Arial';
         ctx.fillStyle = 'black';
         ctx.textAlign = 'left';
