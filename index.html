@@ -59,47 +59,6 @@
     let tempoBrilho = 0;
     let jogoIniciado = true;
 
-    document.addEventListener('keydown', (e) => {
-      if (jogoIniciado) controlar(e.key);
-    });
-    document.getElementById('cima').addEventListener('click', () => controlar('ArrowUp'));
-    document.getElementById('baixo').addEventListener('click', () => controlar('ArrowDown'));
-    document.getElementById('esquerda').addEventListener('click', () => controlar('ArrowLeft'));
-    document.getElementById('direita').addEventListener('click', () => controlar('ArrowRight'));
-    document.getElementById('frente').addEventListener('click', () => {
-      switch (direcao) {
-        case 'cima':
-          controlar('ArrowUp');
-          break;
-        case 'baixo':
-          controlar('ArrowDown');
-          break;
-        case 'esquerda':
-          controlar('ArrowLeft');
-          break;
-        case 'direita':
-          controlar('ArrowRight');
-          break;
-      }
-    });
-
-    function controlar(key) {
-      switch (key) {
-        case 'ArrowUp':
-          if (direcao !== 'baixo') direcao = 'cima';
-          break;
-        case 'ArrowDown':
-          if (direcao !== 'cima') direcao = 'baixo';
-          break;
-        case 'ArrowLeft':
-          if (direcao !== 'direita') direcao = 'esquerda';
-          break;
-        case 'ArrowRight':
-          if (direcao !== 'esquerda') direcao = 'direita';
-          break;
-      }
-    }
-
     function gerarComida() {
       return {
         x: Math.floor(Math.random() * colunas),
@@ -191,12 +150,59 @@
     function desenhar() {
       if (jogoIniciado) {
         atualizarJogo();
+        if (cobraBrilhando) {
+          tempoBrilho++;
+          if (tempoBrilho > 20) {
+            cobraBrilhando = false;
+            tempoBrilho = 0;
+          }
+        }
         setTimeout(desenhar, 100);
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (jogoIniciado) controlar(e.key);
+    });
+    document.getElementById('cima').addEventListener('click', () => controlar('ArrowUp'));
+    document.getElementById('baixo').addEventListener('click', () => controlar('ArrowDown'));
+    document.getElementById('esquerda').addEventListener('click', () => controlar('ArrowLeft'));
+    document.getElementById('direita').addEventListener('click', () => controlar('ArrowRight'));
+    document.getElementById('frente').addEventListener('click', () => {
+      switch (direcao) {
+        case 'cima':
+          controlar('ArrowUp');
+          break;
+        case 'baixo':
+          controlar('ArrowDown');
+          break;
+        case 'esquerda':
+          controlar('ArrowLeft');
+          break;
+        case 'direita':
+          controlar('ArrowRight');
+          break;
+      }
+    });
+
+    function controlar(key) {
+      switch (key) {
+        case 'ArrowUp':
+          if (direcao !== 'baixo') direcao = 'cima';
+          break;
+        case 'ArrowDown':
+          if (direcao !== 'cima') direcao = 'baixo';
+          break;
+        case 'ArrowLeft':
+          if (direcao !== 'direita') direcao = 'esquerda';
+          break;
+        case 'ArrowRight':
+          if (direcao !== 'esquerda') direcao = 'direita';
+          break;
       }
     }
 
     desenhar();
   </script>
 </body>
-  </html>
-  
+</html>
