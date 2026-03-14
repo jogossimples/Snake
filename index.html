@@ -7,100 +7,44 @@
       margin: 0;
       padding: 0;
       overflow: hidden;
-      background-color: #fff;
+      background-color: #f0f0f0;
     }
     #canvas {
-      width: 100%;
-      height: 80vh;
       border: 1px solid black;
-      background-color: #3E8E41;
-    }
-    .controles {
-      display: flex;
-      justify-content: center;
-      margin-top: 20px;
-    }
-    .controles button {
-      width: 80px;
-      height: 80px;
-      margin: 10px;
-      font-size: 40px;
-      border-radius: 10px;
-      background-color: #ccc;
-      border: none;
     }
   </style>
 </head>
 <body>
-  <canvas id="canvas"></canvas>
-  <div class="controles">
-    <button id="cima">↑</button>
-  </div>
-  <div class="controles">
-    <button id="esquerda">←</button>
-    <button id="baixo">↓</button>
-    <button id="direita">→</button>
-    <button id="frente">F</button>
-  </div>
+  <canvas id="canvas" width="400" height="400"></canvas>
   <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     const escala = 20;
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight * 0.8;
-    const linhas = Math.floor(canvas.height / escala);
-    const colunas = Math.floor(canvas.width / escala);
     let cobra = [
-      {x: Math.floor(colunas / 2), y: Math.floor(linhas / 2)},
+      {x: 2, y: 2},
+      {x: 3, y: 2},
+      {x: 4, y: 2},
     ];
     let direcao = 'direita';
-    let comida = gerarComida();
+    let comida = {x: Math.floor(Math.random() * 20), y: Math.floor(Math.random() * 20)};
     let pontos = 0;
-    let cobraBrilhando = false;
-    let tempoBrilho = 0;
-    let jogoIniciado = true;
 
-    function gerarComida() {
-      return {
-        x: Math.floor(Math.random() * colunas),
-        y: Math.floor(Math.random() * linhas),
-      };
-    }
-
-    function desenharFundo() {
-      ctx.fillStyle = '         
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
-
-    function desenharCobra() {
-      cobra.forEach((parte, index) => {
-        if (index === 0) {
-          ctx.fillStyle = 'green';
-          ctx.beginPath();
-          ctx.arc(parte.x * escala + escala / 2, parte.y * escala + escala / 2, escala / 2, 0, 2 * Math.PI);
-          ctx.fill();
-        } else {
-          if (cobraBrilhando) {
-            ctx.fillStyle = tempoBrilho < 10 ? 'yellow' : 'green';
-          } else {
-            ctx.fillStyle = 'green';
-          }
-          ctx.fillRect(parte.x * escala, parte.y * escala, escala, escala);
-        }
+    function desenhar() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      cobra.forEach((parte) => {
+        ctx.fillStyle = 'green';
+        ctx.fillRect(parte.x * escala, parte.y * escala, escala, escala);
       });
-    }
-
-    function desenharComida() {
       ctx.fillStyle = 'red';
-      ctx.beginPath();
-      ctx.arc(comida.x * escala + escala / 2, comida.y * escala + escala / 2, escala / 2, 0, 2 * Math.PI);
-      ctx.fill();
+      ctx.fillRect(comida.x * escala, comida.y * escala, escala, escala);
+      ctx.font = '24px Arial';
+      ctx.fillStyle = 'black';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      ctx.fillText(`Pontos: ${pontos}`, 10, 10);
     }
 
-    function atualizarJogo() {
-      desenharFundo();
-      desenharCobra();
-      desenharComida();
+    function atualizar() {
       let cabeca = cobra[0];
       let novaCabeca;
       switch (direcao) {
@@ -120,74 +64,37 @@
       cobra.unshift(novaCabeca);
       if (novaCabeca.x === comida.x && novaCabeca.y === comida.y) {
         pontos++;
-        comida = gerarComida();
-        cobraBrilhando = true;
-        tempoBrilho = 0;
+        comida = {x: Math.floor(Math.random() * 20), y: Math.floor(Math.random() * 20)};
       } else {
         cobra.pop();
       }
       if (
         novaCabeca.x < 0 ||
-        novaCabeca.x >= colunas ||
+        novaCabeca.x >= 20 ||
         novaCabeca.y < 0 ||
-        novaCabeca.y >= linhas ||
+        novaCabeca.y >= 20 ||
         cobra.slice(1).some((parte) => parte.x === novaCabeca.x && parte.y === novaCabeca.y)
       ) {
         alert(`Fim de jogo! Pontuação: ${pontos}`);
         cobra = [
-          {x: Math.floor(colunas / 2), y: Math.floor(linhas / 2)},
+          {x: 2, y: 2},
+          {x: 3, y: 2},
+          {x: 4, y: 2},
         ];
         direcao = 'direita';
         pontos = 0;
-        comida = gerarComida();
+        comida = {x: Math.floor(Math.random() * 20), y: Math.floor(Math.random() * 20)};
       }
-      ctx.font = '24px Arial';
-      ctx.fillStyle = 'black';
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'top';
-      ctx.fillText(`Pontos: ${pontos}`, 10, 10);
     }
 
-    function desenhar() {
-      if (jogoIniciado) {
-        atualizarJogo();
-        if (cobraBrilhando) {
-          tempoBrilho++;
-          if (tempoBrilho > 20) {
-            cobraBrilhando = false;
-            tempoBrilho = 0;
-          }
-        }
-        setTimeout(desenhar, 100);
-      }
+    function loop() {
+      atualizar();
+      desenhar();
+      setTimeout(loop, 100);
     }
 
     document.addEventListener('keydown', (e) => {
-      if (jogoIniciado) controlar(e.key);
-    });
-    document.getElementById('cima').addEventListener('click', () => controlar('ArrowUp'));
-    document.getElementById('baixo').addEventListener('click', () => controlar('ArrowDown'));
-    document.getElementById('esquerda').addEventListener('click', () => controlar('ArrowLeft'));
-    document.getElementById('direita').addEventListener('click', () => controlar('ArrowRight'));
-    document.getElementById('frente').addEventListener('click', () => {
-      switch (direcao) {
-        case 'cima':
-          controlar('ArrowUp');
-          break;
-        case 'baixo':
-          controlar('ArrowDown');
-          break;
-        case 'esquerda':
-          controlar('ArrowLeft');
-          break;
-        case 'direita':
-          controlar('ArrowRight');
-          break;
-      }
-    });
-
-    function controlar(key) {
-      switch (key) {
+      switch (e.key) {
         case 'ArrowUp':
           if (direcao !== 'baixo') direcao = 'cima';
           break;
@@ -201,9 +108,9 @@
           if (direcao !== 'esquerda') direcao = 'direita';
           break;
       }
-    }
+    });
 
-    desenhar();
+    loop();
   </script>
 </body>
 </html>
