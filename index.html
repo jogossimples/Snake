@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Jogo da Cobra</title>
   <style>
     body {
@@ -11,17 +10,14 @@
       background-color: #fff;
     }
     #canvas {
-      width: 100vw;
-      height: 100vh;
-      border: none;
+      width: 50vw;
+      height: 50vh;
+      border: 1px solid black;
     }
     .controles {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
       display: flex;
       justify-content: center;
+      margin-top: 20px;
     }
     .controles button {
       width: 50px;
@@ -29,27 +25,39 @@
       margin: 5px;
       font-size: 24px;
     }
+    #inicio {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #fff;
+      padding: 20px;
+      border: 1px solid black;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
-  <canvas id="canvas"></canvas>
-  <div class="controles">
+  <canvas id="canvas" width="400" height="400" style="display: none;"></canvas>
+  <div id="inicio">
+    <h1>Jogo da Cobra</h1>
+    <button id="start">Start</button>
+  </div>
+  <div class="controles" style="display: none;">
     <button id="cima">↑</button>
   </div>
-  <div class="controles">
+  <div class="controles" style="display: none;">
     <button id="esquerda">←</button>
     <button id="baixo">↓</button>
     <button id="direita">→</button>
+    <button id="frente">F</button>
   </div>
   <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     const escala = 20;
-    const linhas = Math.floor(window.innerHeight / escala);
-    const colunas = Math.floor(window.innerWidth / escala);
-    canvas.width = colunas * escala;
-    canvas.height = linhas * escala;
-
+    const linhas = canvas.height / escala;
+    const colunas = canvas.width / escala;
     let cobra = [
       {x: Math.floor(colunas / 2), y: Math.floor(linhas / 2)},
     ];
@@ -58,15 +66,42 @@
     let pontos = 0;
     let cobraBrilhando = false;
     let tempoBrilho = 0;
+    let jogoIniciado = false;
+
+    document.getElementById('start').addEventListener('click', () => {
+      jogoIniciado = true;
+      document.getElementById('inicio').style.display = 'none';
+      canvas.style.display = 'block';
+      document.querySelectorAll('.controles').forEach((el) => {
+        el.style.display = 'flex';
+      });
+      desenhar();
+    });
 
     document.addEventListener('keydown', (e) => {
-      controlar(e.key);
+      if (jogoIniciado) controlar(e.key);
     });
 
     document.getElementById('cima').addEventListener('click', () => controlar('ArrowUp'));
     document.getElementById('baixo').addEventListener('click', () => controlar('ArrowDown'));
     document.getElementById('esquerda').addEventListener('click', () => controlar('ArrowLeft'));
     document.getElementById('direita').addEventListener('click', () => controlar('ArrowRight'));
+    document.getElementById('frente').addEventListener('click', () => {
+      switch (direcao) {
+        case 'cima':
+          controlar('ArrowUp');
+          break;
+        case 'baixo':
+          controlar('ArrowDown');
+          break;
+        case 'esquerda':
+          controlar('ArrowLeft');
+          break;
+        case 'direita':
+          controlar('ArrowRight');
+          break;
+      }
+    });
 
     function controlar(key) {
       switch (key) {
@@ -93,81 +128,87 @@
     }
 
     function desenhar() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      cobra.forEach((parte) => {
+      if (jogoIniciado) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        cobra.forEach((parte) => {
+          if (cobraBrilhando) {
+            ctx.fillStyle = tempoBrilho < 10 ? 'yellow' : 'green';
+          } else {
+            ctx.fillStyle = 'green';
+          }
+          ctx.fillRect(parte.x * escala, parte.y * escala, escala, escala);
+        });
+
         if (cobraBrilhando) {
-          ctx.fillStyle = tempoBrilho < 10 ? 'yellow' : 'green';
-        } else {
-          ctx.fillStyle = 'green';
+          tempoBrilho++;
+          if (tempoBrilho > 20) {
+            cobraBrilhando = false;
+            tempoBrilho = 0;
+          }
         }
-        ctx.fillRect(parte.x * escala, parte.y * escala, escala, escala);
-      });
 
-      if (cobraBrilhando) {
-        tempoBrilho++;
-        if (tempoBrilho > 20) {
-          cobraBrilhando = false;
+        ctx.fillStyle = 'red';
+        ctx.fillRect(comida.x * escala, comida.y * escala, escala, escala);
+
+        let cabeca = cobra[0];
+        let novaCabeca;
+
+        switch (direcao) {
+          case 'cima':
+            novaCabeca = {x: cabeca.x, y: cabeca.y - 1};
+            break;
+          case 'baixo':
+            novaCabeca = {x: cabeca.x, y: cabeca.y + 1};
+            break;
+          case 'esquerda':
+            novaCabeca = {x: cabeca.x - 1, y: cabeca.y};
+            break;
+          case 'direita':
+            novaCabeca = {x: cabeca.x + 1, y: cabeca.y};
+            break;
+        }
+
+        cobra.unshift(novaCabeca);
+
+        if (novaCabeca.x === comida.x && novaCabeca.y === comida.y) {
+          pontos++;
+          comida = gerarComida();
+          cobraBrilhando = true;
           tempoBrilho = 0;
+        } else {
+          cobra.pop();
         }
+
+        if (
+          novaCabeca.x < 0 ||
+          novaCabeca.x >= colunas ||
+          novaCabeca.y < 0 ||
+          novaCabeca.y >= linhas ||
+          cobra.slice(1).some((parte) => parte.x === novaCabeca.x && parte.y === novaCabeca.y)
+        ) {
+          alert(`Fim de jogo! Pontuação: ${pontos}`);
+          cobra = [
+            {x: Math.floor(colunas / 2), y: Math.floor(linhas / 2)},
+          ];
+          direcao = 'direita';
+          pontos = 0;
+          comida = gerarComida();
+          jogoIniciado = false;
+          document.getElementById('inicio').style.display = 'block';
+          canvas.style.display = 'none';
+          document.querySelectorAll('.controles').forEach((el) => {
+            el.style.display = 'none';
+          });
+        }
+
+        ctx.font = '24px Arial';
+        ctx.fillStyle = 'black';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        ctx.fillText(`Pontos: ${pontos}`, 10, 10);
+        setTimeout(desenhar, 100);
       }
-
-      ctx.fillStyle = 'red';
-      ctx.fillRect(comida.x * escala, comida.y * escala, escala, escala);
-
-      let cabeca = cobra[0];
-      let novaCabeca;
-
-      switch (direcao) {
-        case 'cima':
-          novaCabeca = {x: cabeca.x, y: cabeca.y - 1};
-          break;
-        case 'baixo':
-          novaCabeca = {x: cabeca.x, y: cabeca.y + 1};
-          break;
-        case 'esquerda':
-          novaCabeca = {x: cabeca.x - 1, y: cabeca.y};
-          break;
-        case 'direita':
-          novaCabeca = {x: cabeca.x + 1, y: cabeca.y};
-          break;
-      }
-
-      cobra.unshift(novaCabeca);
-
-      if (novaCabeca.x === comida.x && novaCabeca.y === comida.y) {
-        pontos++;
-        comida = gerarComida();
-        cobraBrilhando = true;
-        tempoBrilho = 0;
-      } else {
-        cobra.pop();
-      }
-
-      if (
-        novaCabeca.x < 0 ||
-        novaCabeca.x >= colunas ||
-        novaCabeca.y < 0 ||
-        novaCabeca.y >= linhas ||
-        cobra.slice(1).some((parte) => parte.x === novaCabeca.x && parte.y === novaCabeca.y)
-      ) {
-        alert(`Fim de jogo! Pontuação: ${pontos}`);
-        cobra = [
-          {x: Math.floor(colunas / 2), y: Math.floor(linhas / 2)},
-        ];
-        direcao = 'direita';
-        pontos = 0;
-        comida = gerarComida();
-      }
-
-      ctx.font = '24px Arial';
-      ctx.fillStyle = 'black';
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'top';
-      ctx.fillText(`Pontos: ${pontos}`, 10, 10);
     }
-
-    setInterval(desenhar, 100);
   </script>
 </body>
-  </html>
-  
+</html>
