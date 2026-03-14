@@ -129,13 +129,20 @@
     function desenhar() {
       if (jogoIniciado) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        cobra.forEach((parte) => {
-          if (cobraBrilhando) {
-            ctx.fillStyle = tempoBrilho < 10 ? 'yellow' : 'green';
-          } else {
+        cobra.forEach((parte, index) => {
+          if (index === 0) {
             ctx.fillStyle = 'green';
+            ctx.beginPath();
+            ctx.arc(parte.x * escala + escala / 2, parte.y * escala + escala / 2, escala / 2, 0, 2 * Math.PI);
+            ctx.fill();
+          } else {
+            if (cobraBrilhando) {
+              ctx.fillStyle = tempoBrilho < 10 ? 'yellow' : 'green';
+            } else {
+              ctx.fillStyle = 'green';
+            }
+            ctx.fillRect(parte.x * escala, parte.y * escala, escala, escala);
           }
-          ctx.fillRect(parte.x * escala, parte.y * escala, escala, escala);
         });
         if (cobraBrilhando) {
           tempoBrilho++;
@@ -145,7 +152,9 @@
           }
         }
         ctx.fillStyle = 'red';
-        ctx.fillRect(comida.x * escala, comida.y * escala, escala, escala);
+        ctx.beginPath();
+        ctx.arc(comida.x * escala + escala / 2, comida.y * escala + escala / 2, escala / 2, 0, 2 * Math.PI);
+        ctx.fill();
         let cabeca = cobra[0];
         let novaCabeca;
         switch (direcao) {
