@@ -7,7 +7,7 @@
       margin: 0;
       padding: 0;
       overflow: hidden;
-      background-color: #fff;
+      background-color: #3E8E41;
     }
     #canvas {
       width: 100%;
@@ -28,28 +28,14 @@
       background-color: #ccc;
       border: none;
     }
-    #inicio {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background-color: #fff;
-      padding: 20px;
-      border: 1px solid black;
-      text-align: center;
-    }
   </style>
 </head>
 <body>
-  <canvas id="canvas" style="display: none;"></canvas>
-  <div id="inicio">
-    <h1>Jogo da Cobra</h1>
-    <button id="start">Start</button>
-  </div>
-  <div class="controles" style="display: none;">
+  <canvas id="canvas"></canvas>
+  <div class="controles">
     <button id="cima">↑</button>
   </div>
-  <div class="controles" style="display: none;">
+  <div class="controles">
     <button id="esquerda">←</button>
     <button id="baixo">↓</button>
     <button id="direita">→</button>
@@ -71,19 +57,7 @@
     let pontos = 0;
     let cobraBrilhando = false;
     let tempoBrilho = 0;
-    let jogoIniciado = false;
-
-    document.getElementById('start').addEventListener('click', iniciarJogo);
-
-    function iniciarJogo() {
-      jogoIniciado = true;
-      document.getElementById('inicio').style.display = 'none';
-      canvas.style.display = 'block';
-      document.querySelectorAll('.controles').forEach((el) => {
-        el.style.display = 'flex';
-      });
-      desenhar();
-    }
+    let jogoIniciado = true;
 
     document.addEventListener('keydown', (e) => {
       if (jogoIniciado) controlar(e.key);
@@ -202,12 +176,6 @@
           direcao = 'direita';
           pontos = 0;
           comida = gerarComida();
-          jogoIniciado = false;
-          document.getElementById('inicio').style.display = 'block';
-          canvas.style.display = 'none';
-          document.querySelectorAll('.controles').forEach((el) => {
-            el.style.display = 'none';
-          });
         }
         ctx.font = '24px Arial';
         ctx.fillStyle = 'black';
@@ -217,6 +185,8 @@
         setTimeout(desenhar, 100);
       }
     }
+
+    desenhar();
   </script>
 </body>
 </html>
