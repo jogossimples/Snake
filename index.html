@@ -15,18 +15,18 @@
   </style>
 </head>
 <body>
-  <canvas id="canvas" width="600" height="600"></canvas>
+  <canvas id="canvas" width="400" height="400"></canvas>
   <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     const escala = 20;
     let cobra = [
-      {x: 2, y: 2},
-      {x: 3, y: 2},
-      {x: 4, y: 2},
+      {x: 5, y: 5},
+      {x: 6, y: 5},
+      {x: 7, y: 5},
     ];
     let direcao = 'direita';
-    let comida = {x: Math.floor(Math.random() * 20), y: Math.floor(Math.random() * 20)};
+    let comida = {x: Math.floor(Math.random() * 19) + 1, y: Math.floor(Math.random() * 19) + 1};
     let pontos = 0;
 
     function desenhar() {
@@ -64,7 +64,7 @@
       cobra.unshift(novaCabeca);
       if (novaCabeca.x === comida.x && novaCabeca.y === comida.y) {
         pontos++;
-        comida = {x: Math.floor(Math.random() * 20), y: Math.floor(Math.random() * 20)};
+        comida = {x: Math.floor(Math.random() * 19) + 1, y: Math.floor(Math.random() * 19) + 1};
       } else {
         cobra.pop();
       }
@@ -77,13 +77,13 @@
       ) {
         alert(`Fim de jogo! Pontuação: ${pontos}`);
         cobra = [
-          {x: 2, y: 2},
-          {x: 3, y: 2},
-          {x: 4, y: 2},
+          {x: 5, y: 5},
+          {x: 6, y: 5},
+          {x: 7, y: 5},
         ];
         direcao = 'direita';
         pontos = 0;
-        comida = {x: Math.floor(Math.random() * 20), y: Math.floor(Math.random() * 20)};
+        comida = {x: Math.floor(Math.random() * 19) + 1, y: Math.floor(Math.random() * 19) + 1};
       }
     }
 
@@ -93,7 +93,7 @@
       setTimeout(loop, 100);
     }
 
-    document.addEventListener('keydown', (e) => {
+    document.addEventListener('keydown('keydown', (e) => {
       switch (e.key) {
         case 'ArrowUp':
           if (direcao !== 'baixo') direcao = 'cima';
