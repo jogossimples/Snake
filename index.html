@@ -1,131 +1,242 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Jogo de RPG com Justick</title>
+  <title>Jogo de Clicker</title>
   <style>
     body {
       font-family: Arial, sans-serif;
+      text-align: center;
     }
-    #jogador {
-      font-size: 24px;
+    #contador {
+      font-size: 48px;
       font-weight: bold;
     }
-    #acao {
-      font-size: 18px;
+    #botao {
+      width: 200px;
+      height: 50px;
+      font-size: 24px;
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
     }
-    button {
+    #botao:hover {
+      background-color: #3e8e41;
+    }
+    #upgrade {
+      width: 200px;
+      height: 50px;
+      font-size: 24px;
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #upgrade:hover {
+      background-color: #3e8e41;
+    }
+    .particula {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background-color: #4CAF50;
+      border-radius: 50%;
+      animation: subir 1s;
+    }
+    @keyframes subir {
+      0% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100px);
+        opacity: 0;
+      }
+    }
+    #loja {
+      width: 300px;
+      margin: 20px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #f0f0f0;
+    }
+    #loja h2 {
+      margin-top: 0;
+    }
+    #loja ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    #loja li {
+      margin-bottom: 10px;
+    }
+    #loja button {
       width: 100px;
       height: 30px;
-      margin: 10px;
       font-size: 16px;
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #loja button:hover {
+      background-color: #3e8e41;
+    }
+    #som-icon {
+      font-size: 24px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <h1>Jogo de RPG com Justick</h1>
-  <p id="jogador">Justick (Nível 1)</p>
-  <p id="acao"></p>
-  <button id="atacar">Atacar</button>
-  <button id="defender">Defender</button>
-  <button id="curar">Curar</button>
-
+  <h1>Jogo de Clicker</h1>
+  <p id="contador">0</p>
+  <button id="botao">Clique aqui!</button>
+  <p id="mensagem"></p>
+  <button id="upgrade">Upgrade (Custo: 10)</button>
+  <p id="nivel">Nível: 1</p>
+  <div id="loja">
+    <h2>Loja</h2>
+    <ul>
+      <li>
+        <span>Multiplicador x2 (Custo: 100)</span>
+        <button id="comprar-multiplicador">Comprar</button>
+      </li>
+      <li>
+        <span>Aumento de velocidade (Custo: 50)</span>
+        <button id="comprar-velocidade">Comprar</button>
+      </li>
+    </ul>
+  </div>
+  <audio id="som-clique" src="https:                                                                 
+  <audio id="som-upgrade" src="https://freesound.org/data/previews/187/187130_2567799-lq.mp3"></audio>
+  <span id="som-icon">&#128266;</span>
   <script>
-    let jogador = {
-      nome: 'Justick',
-      nivel: 1,
-      vida: 100,
-      ataque: 10,
-      defesa: 5
-    };
+    let contador = 0;
+    let multiplicador = 1;
+    let custo = 10;
+    let nivel = 1;
+    let velocidade = 1;
+    let somAtivo = true;
 
-    let inimigo = {
-      nome: 'Monstro',
-      nivel: 1,
-      vida: 50,
-      ataque: 5,
-      defesa: 2
-    };
-
-    document.getElementById('atacar').addEventListener('click', atacar);
-    document.getElementById('defender').addEventListener('click', defender);
-    document.getElementById('curar').addEventListener('click', curar);
-
-    function atualizarJogador() {
-      document.getElementById('jogador').innerHTML = `${jogador.nome} (Nível ${jogador.nivel}) - Vida: ${jogador.vida}`;
+    // Carregar progresso
+    if (localStorage.getItem('contador')) {
+      contador = parseInt(localStorage.getItem('contador')) || 0;
+      multiplicador = parseInt(localStorage.getItem('multiplicador')) || 1;
+      custo = parseInt(localStorage.getItem('custo')) || 10;
+      nivel = parseInt(localStorage.getItem('nivel')) || 1;
+      velocidade = parseInt(localStorage.getItem('velocidade')) || 1;
+      document.getElementById('contador').innerHTML = contador;
+      document.getElementById('nivel').innerHTML = `Nível: ${nivel}`;
+      document.getElementById('upgrade').innerHTML = `Upgrade (Custo: ${custo})`;
     }
 
-    function atualizarAcao(texto) {
-      document.getElementById('acao').innerHTML = texto;
-    }
-
-    function atacar() {
-      let dano = jogador.ataque - inimigo.defesa;
-      if (dano > 0) {
-        inimigo.vida -= dano;
-        atualizarAcao(`Você atacou o ${inimigo.nome} por ${dano} de dano!`);
-      } else {
-        atualizarAcao(`Você atacou o ${inimigo.nome}, mas não causou dano!`);
+    document.getElementById('botao').addEventListener('click', () => {
+      contador += multiplicador * velocidade;
+      document.getElementById('contador').innerHTML = contador;
+      criarParticula();
+      if (somAtivo) {
+        document.getElementById('som-clique').play();
       }
-      verificarVidaInimigo();
-      inimigoAtaca();
+      verificarMultiplicador();
+      salvarProgresso();
+    });
+
+    document.getElementById('upgrade').addEventListener('click', () => {
+      if (contador >= custo) {
+        multiplicador++;
+        contador -= custo;
+        custo *= 2;
+        nivel++;
+        document.getElementById('nivel').innerHTML = `Nível: ${nivel}`;
+        document.getElementById('upgrade').innerHTML = `Upgrade (Custo: ${custo})`;
+        document.getElementById('contador').innerHTML = contador;
+        document.getElementById('mensagem').innerHTML = `Multiplicador aumentado para ${multiplicador}!`;
+        if (somAtivo) {
+          document.getElementById('som-upgrade').play();
+        }
+        setTimeout(() => {
+          document.getElementById('mensagem').innerHTML = '';
+        }, 3000);
+        salvarProgresso();
+      }
+    });
+
+    document.getElementById('comprar-multiplicador').addEventListener('click', () => {
+      if (contador >= 100) {
+        multiplicador *= 2;
+        contador -= 100;
+        document.getElementById('contador').innerHTML = contador;
+        document.getElementById('mensagem').innerHTML = `Multiplicador aumentado para ${multiplicador}!`;
+        if (somAtivo) {
+          document.getElementById('som-upgrade').play();
+        }
+        setTimeout(() => {
+          document.getElementById('mensagem').innerHTML = '';
+        }, 3000);
+        salvarProgresso();
+      }
+    });
+
+    document.getElementById('comprar-velocidade').addEventListener('click', () => {
+      if (contador >= 50) {
+        velocidade++;
+        contador -= 50;
+        document.getElementById('contador').innerHTML = contador;
+        document.getElementById('mensagem').innerHTML = `Velocidade aumentada para ${velocidade}!`;
+        if (somAtivo) {
+          document.getElementById('som-upgrade').play();
+        }
+        setTimeout(() => {
+          document.getElementById('mensagem').innerHTML = '';
+        }, 3000);
+        salvarProgresso();
+      }
+    });
+
+    document.getElementById('som-icon').addEventListener('click', () => {
+      somAtivo = !somAtivo;
+      if (somAtivo) {
+        document.getElementById('som-icon').innerHTML = '&          
+      } else {
+        document.getElementById('som-icon').innerHTML = '&#128263;';
+      }
+    });
+
+    function verificarMultiplicador() {
+      if (contador >= custo) {
+        document.getElementById('upgrade').disabled = false;
+      } else {
+        document.getElementById('upgrade').disabled = true;
+      }
     }
 
-    function defender() {
-      jogador.defesa += 5;
-      atualizarAcao(`Você se defendeu! Sua defesa aumentou em 5.`);
+    function criarParticula() {
+      const particula = document.createElement('div');
+      particula.classList.add('particula');
+      particula.style.left = `${Math.random() * 100}px`;
+      document.body.appendChild(particula);
       setTimeout(() => {
-        jogador.defesa -= 5;
-      }, 3000);
-      inimigoAtaca();
+        particula.remove();
+      }, 1000);
     }
 
-    function curar() {
-      jogador.vida += 10;
-      if (jogador.vida > 100) jogador.vida = 100;
-      atualizarAcao(`Você se curou! Sua vida aumentou em 10.`);
-      atualizarJogador();
-      inimigoAtaca();
+    function salvarProgresso() {
+      localStorage.setItem('contador', contador);
+      localStorage.setItem('multiplicador', multiplicador);
+      localStorage.setItem('custo', custo);
+      localStorage.setItem('nivel', nivel);
+      localStorage.setItem('velocidade', velocidade);
     }
 
-    function inimigoAtaca() {
-      let dano = inimigo.ataque - jogador.defesa;
-      if (dano > 0) {
-        jogador.vida -= dano;
-        atualizarAcao(`O ${inimigo.nome} atacou você por ${dano} de dano!`);
-      } else {
-        atualizarAcao(`O ${inimigo.nome} atacou você, mas não causou dano!`);
-      }
-      verificarVidaJogador();
-      atualizarJogador();
-    }
-
-    function verificarVidaInimigo() {
-      if (inimigo.vida <= 0) {
-        atualizarAcao(`Você derrotou o ${inimigo.nome}!`);
-        inimigo = {
-          nome: 'Monstro',
-          nivel: 1,
-          vida: 50,
-          ataque: 5,
-          defesa: 2
-        };
-      }
-    }
-
-    function verificarVidaJogador() {
-      if (jogador.vida <= 0) {
-        atualizarAcao(`Você morreu!`);
-        jogador = {
-          nome: 'Justick',
-          nivel: 1,
-          vida: 100,
-          ataque: 10,
-          defesa: 5
-        };
-      }
-    }
-
-    atualizarJogador();
+    // Salvar progresso a cada 10 segundos
+    setInterval(salvarProgresso, 10000);
   </script>
 </body>
-</html>
+  </html>
+  
