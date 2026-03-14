@@ -1,139 +1,131 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Jogo da Cobra</title>
+  <title>Jogo de RPG com Justick</title>
   <style>
-    canvas {
-      border: 1px solid black;
+    body {
+      font-family: Arial, sans-serif;
     }
-    .controles {
-      display: flex;
-      justify-content: center;
-      margin-top: 20px;
+    #jogador {
+      font-size: 24px;
+      font-weight: bold;
     }
-    .controles button {
-      width: 80px;
-      height: 80px;
+    #acao {
+      font-size: 18px;
+    }
+    button {
+      width: 100px;
+      height: 30px;
       margin: 10px;
-      font-size: 40px;
+      font-size: 16px;
     }
   </style>
 </head>
 <body>
-  <canvas id="canvas" width="400" height="400"></canvas>
-  <div class="controles">
-    <button id="cima">↑</button>
-  </div>
-  <div class="controles">
-    <button id="esquerda">←</button>
-    <button id="baixo">↓</button>
-    <button id="direita">→</button>
-  </div>
+  <h1>Jogo de RPG com Justick</h1>
+  <p id="jogador">Justick (Nível 1)</p>
+  <p id="acao"></p>
+  <button id="atacar">Atacar</button>
+  <button id="defender">Defender</button>
+  <button id="curar">Curar</button>
+
   <script>
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    const escala = 20;
-    const linhas = canvas.height / escala;
-    const colunas = canvas.width / escala;
-    let cobra = [
-      {x: Math.floor(colunas / 2), y: Math.floor(linhas / 2)},
-    ];
-    let direcao = 'direita';
-    let comida = gerarComida();
-    let pontos = 0;
-    let velocidade = 100;
+    let jogador = {
+      nome: 'Justick',
+      nivel: 1,
+      vida: 100,
+      ataque: 10,
+      defesa: 5
+    };
 
-    document.addEventListener('keydown', (e) => {
-      controlar(e.key);
-    });
-    document.getElementById('cima').addEventListener('click', () => controlar('ArrowUp'));
-    document.getElementById('baixo').addEventListener('click', () => controlar('ArrowDown'));
-    document.getElementById('esquerda').addEventListener('click', () => controlar('ArrowLeft'));
-    document.getElementById('direita').addEventListener('click', () => controlar('ArrowRight'));
+    let inimigo = {
+      nome: 'Monstro',
+      nivel: 1,
+      vida: 50,
+      ataque: 5,
+      defesa: 2
+    };
 
-    function controlar(key) {
-      switch (key) {
-        case 'ArrowUp':
-          if (direcao !== 'baixo') direcao = 'cima';
-          break;
-        case 'ArrowDown':
-          if (direcao !== 'cima') direcao = 'baixo';
-          break;
-        case 'ArrowLeft':
-          if (direcao !== 'direita') direcao = 'esquerda';
-          break;
-        case 'ArrowRight':
-          if (direcao !== 'esquerda') direcao = 'direita';
-          break;
-      }
+    document.getElementById('atacar').addEventListener('click', atacar);
+    document.getElementById('defender').addEventListener('click', defender);
+    document.getElementById('curar').addEventListener('click', curar);
+
+    function atualizarJogador() {
+      document.getElementById('jogador').innerHTML = `${jogador.nome} (Nível ${jogador.nivel}) - Vida: ${jogador.vida}`;
     }
 
-    function gerarComida() {
-      return {
-        x: Math.floor(Math.random() * colunas),
-        y: Math.floor(Math.random() * linhas),
-      };
+    function atualizarAcao(texto) {
+      document.getElementById('acao').innerHTML = texto;
     }
 
-    function desenhar() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      cobra.forEach((parte) => {
-        ctx.fillStyle = 'green';
-        ctx.fillRect(parte.x * escala, parte.y * escala, escala, escala);
-      });
-      ctx.fillStyle = 'red';
-      ctx.fillRect(comida.x * escala, comida.y * escala, escala, escala);
-      let cabeca = cobra[0];
-      let novaCabeca;
-      switch (direcao) {
-        case 'cima':
-          novaCabeca = {x: cabeca.x, y: cabeca.y - 1};
-          break;
-        case 'baixo':
-          novaCabeca = {x: cabeca.x, y: cabeca.y + 1};
-          break;
-        case 'esquerda':
-          novaCabeca = {x: cabeca.x - 1, y: cabeca.y};
-          break;
-        case 'direita':
-          novaCabeca = {x: cabeca.x + 1, y: cabeca.y};
-          break;
-      }
-      cobra.unshift(novaCabeca);
-      if (novaCabeca.x === comida.x && novaCabeca.y === comida.y) {
-        pontos++;
-        comida = gerarComida();
-        if (pontos % 5 === 0) {
-          velocidade -= 10;
-          if (velocidade < 20) velocidade = 20;
-        }
+    function atacar() {
+      let dano = jogador.ataque - inimigo.defesa;
+      if (dano > 0) {
+        inimigo.vida -= dano;
+        atualizarAcao(`Você atacou o ${inimigo.nome} por ${dano} de dano!`);
       } else {
-        cobra.pop();
+        atualizarAcao(`Você atacou o ${inimigo.nome}, mas não causou dano!`);
       }
-      if (
-        novaCabeca.x < 0 ||
-        novaCabeca.x >= colunas ||
-        novaCabeca.y < 0 ||
-        novaCabeca.y >= linhas ||
-        cobra.slice(1).some((parte) => parte.x === novaCabeca.x && parte.y === novaCabeca.y)
-      ) {
-        alert(`Fim de jogo! Pontuação: ${pontos}`);
-        cobra = [
-          {x: Math.floor(colunas / 2), y: Math.floor(linhas / 2)},
-        ];
-        direcao = 'direita';
-        pontos = 0;
-        velocidade = 100;
-        comida = gerarComida();
-      }
-      ctx.font = '24px Arial';
-      ctx.fillStyle = 'black';
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'top';
-      ctx.fillText(`Pontos: ${pontos}`, 10, 10);
+      verificarVidaInimigo();
+      inimigoAtaca();
     }
 
-    setInterval(desenhar, velocidade);
+    function defender() {
+      jogador.defesa += 5;
+      atualizarAcao(`Você se defendeu! Sua defesa aumentou em 5.`);
+      setTimeout(() => {
+        jogador.defesa -= 5;
+      }, 3000);
+      inimigoAtaca();
+    }
+
+    function curar() {
+      jogador.vida += 10;
+      if (jogador.vida > 100) jogador.vida = 100;
+      atualizarAcao(`Você se curou! Sua vida aumentou em 10.`);
+      atualizarJogador();
+      inimigoAtaca();
+    }
+
+    function inimigoAtaca() {
+      let dano = inimigo.ataque - jogador.defesa;
+      if (dano > 0) {
+        jogador.vida -= dano;
+        atualizarAcao(`O ${inimigo.nome} atacou você por ${dano} de dano!`);
+      } else {
+        atualizarAcao(`O ${inimigo.nome} atacou você, mas não causou dano!`);
+      }
+      verificarVidaJogador();
+      atualizarJogador();
+    }
+
+    function verificarVidaInimigo() {
+      if (inimigo.vida <= 0) {
+        atualizarAcao(`Você derrotou o ${inimigo.nome}!`);
+        inimigo = {
+          nome: 'Monstro',
+          nivel: 1,
+          vida: 50,
+          ataque: 5,
+          defesa: 2
+        };
+      }
+    }
+
+    function verificarVidaJogador() {
+      if (jogador.vida <= 0) {
+        atualizarAcao(`Você morreu!`);
+        jogador = {
+          nome: 'Justick',
+          nivel: 1,
+          vida: 100,
+          ataque: 10,
+          defesa: 5
+        };
+      }
+    }
+
+    atualizarJogador();
   </script>
 </body>
 </html>
