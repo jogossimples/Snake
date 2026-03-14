@@ -3,16 +3,8 @@
 <head>
   <title>Jogo da Cobra</title>
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      background-color: #f0f0f0;
-    }
     canvas {
       border: 1px solid black;
-      width: 100%;
-      height: 80vh;
     }
     .controles {
       display: flex;
@@ -28,7 +20,7 @@
   </style>
 </head>
 <body>
-  <canvas id="canvas"></canvas>
+  <canvas id="canvas" width="400" height="400"></canvas>
   <div class="controles">
     <button id="cima">↑</button>
   </div>
@@ -40,17 +32,16 @@
   <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight * 0.8;
     const escala = 20;
-    const linhas = Math.floor(canvas.height / escala);
-    const colunas = Math.floor(canvas.width / escala);
+    const linhas = canvas.height / escala;
+    const colunas = canvas.width / escala;
     let cobra = [
       {x: Math.floor(colunas / 2), y: Math.floor(linhas / 2)},
     ];
     let direcao = 'direita';
     let comida = gerarComida();
     let pontos = 0;
+    let velocidade = 100;
 
     document.addEventListener('keydown', (e) => {
       controlar(e.key);
@@ -112,6 +103,10 @@
       if (novaCabeca.x === comida.x && novaCabeca.y === comida.y) {
         pontos++;
         comida = gerarComida();
+        if (pontos % 5 === 0) {
+          velocidade -= 10;
+          if (velocidade < 20) velocidade = 20;
+        }
       } else {
         cobra.pop();
       }
@@ -128,6 +123,7 @@
         ];
         direcao = 'direita';
         pontos = 0;
+        velocidade = 100;
         comida = gerarComida();
       }
       ctx.font = '24px Arial';
@@ -137,7 +133,7 @@
       ctx.fillText(`Pontos: ${pontos}`, 10, 10);
     }
 
-    setInterval(desenhar, 100);
+    setInterval(desenhar, velocidade);
   </script>
 </body>
 </html>
