@@ -107,81 +107,90 @@
       };
     }
 
+    function desenharFundo() {
+      ctx.fillStyle = '         
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function desenharCobra() {
+      cobra.forEach((parte, index) => {
+        if (index === 0) {
+          ctx.fillStyle = 'green';
+          ctx.beginPath();
+          ctx.arc(parte.x * escala + escala / 2, parte.y * escala + escala / 2, escala / 2, 0, 2 * Math.PI);
+          ctx.fill();
+        } else {
+          if (cobraBrilhando) {
+            ctx.fillStyle = tempoBrilho < 10 ? 'yellow' : 'green';
+          } else {
+            ctx.fillStyle = 'green';
+          }
+          ctx.fillRect(parte.x * escala, parte.y * escala, escala, escala);
+        }
+      });
+    }
+
+    function desenharComida() {
+      ctx.fillStyle = 'red';
+      ctx.beginPath();
+      ctx.arc(comida.x * escala + escala / 2, comida.y * escala + escala / 2, escala / 2, 0, 2 * Math.PI);
+      ctx.fill();
+    }
+
+    function atualizarJogo() {
+      desenharFundo();
+      desenharCobra();
+      desenharComida();
+      let cabeca = cobra[0];
+      let novaCabeca;
+      switch (direcao) {
+        case 'cima':
+          novaCabeca = {x: cabeca.x, y: cabeca.y - 1};
+          break;
+        case 'baixo':
+          novaCabeca = {x: cabeca.x, y: cabeca.y + 1};
+          break;
+        case 'esquerda':
+          novaCabeca = {x: cabeca.x - 1, y: cabeca.y};
+          break;
+        case 'direita':
+          novaCabeca = {x: cabeca.x + 1, y: cabeca.y};
+          break;
+      }
+      cobra.unshift(novaCabeca);
+      if (novaCabeca.x === comida.x && novaCabeca.y === comida.y) {
+        pontos++;
+        comida = gerarComida();
+        cobraBrilhando = true;
+        tempoBrilho = 0;
+      } else {
+        cobra.pop();
+      }
+      if (
+        novaCabeca.x < 0 ||
+        novaCabeca.x >= colunas ||
+        novaCabeca.y < 0 ||
+        novaCabeca.y >= linhas ||
+        cobra.slice(1).some((parte) => parte.x === novaCabeca.x && parte.y === novaCabeca.y)
+      ) {
+        alert(`Fim de jogo! Pontuação: ${pontos}`);
+        cobra = [
+          {x: Math.floor(colunas / 2), y: Math.floor(linhas / 2)},
+        ];
+        direcao = 'direita';
+        pontos = 0;
+        comida = gerarComida();
+      }
+      ctx.font = '24px Arial';
+      ctx.fillStyle = 'black';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      ctx.fillText(`Pontos: ${pontos}`, 10, 10);
+    }
+
     function desenhar() {
       if (jogoIniciado) {
-        ctx.fillStyle = '         
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        cobra.forEach((parte, index) => {
-          if (index === 0) {
-            ctx.fillStyle = 'green';
-            ctx.beginPath();
-            ctx.arc(parte.x * escala + escala / 2, parte.y * escala + escala / 2, escala / 2, 0, 2 * Math.PI);
-            ctx.fill();
-          } else {
-            if (cobraBrilhando) {
-              ctx.fillStyle = tempoBrilho < 10 ? 'yellow' : 'green';
-            } else {
-              ctx.fillStyle = 'green';
-            }
-            ctx.fillRect(parte.x * escala, parte.y * escala, escala, escala);
-          }
-        });
-        if (cobraBrilhando) {
-          tempoBrilho++;
-          if (tempoBrilho > 20) {
-            cobraBrilhando = false;
-            tempoBrilho = 0;
-          }
-        }
-        ctx.fillStyle = 'red';
-        ctx.beginPath();
-        ctx.arc(comida.x * escala + escala / 2, comida.y * escala + escala / 2, escala / 2, 0, 2 * Math.PI);
-        ctx.fill();
-        let cabeca = cobra[0];
-        let novaCabeca;
-        switch (direcao) {
-          case 'cima':
-            novaCabeca = {x: cabeca.x, y: cabeca.y - 1};
-            break;
-          case 'baixo':
-            novaCabeca = {x: cabeca.x, y: cabeca.y + 1};
-            break;
-          case 'esquerda':
-            novaCabeca = {x: cabeca.x - 1, y: cabeca.y};
-            break;
-          case 'direita':
-            novaCabeca = {x: cabeca.x + 1, y: cabeca.y};
-            break;
-        }
-        cobra.unshift(novaCabeca);
-        if (novaCabeca.x === comida.x && novaCabeca.y === comida.y) {
-          pontos++;
-          comida = gerarComida();
-          cobraBrilhando = true;
-          tempoBrilho = 0;
-        } else {
-          cobra.pop();
-        }
-        if (
-          novaCabeca.x < 0 ||
-          novaCabeca.x >= colunas ||
-          novaCabeca.y < 0 ||
-          novaCabeca.y >= linhas ||
-          cobra.slice(1).some((parte) => parte.x === novaCabeca.x && parte.y === novaCabeca.y)
-        ) {
-          alert(`Fim de jogo! Pontuação: ${pontos}`);
-          cobra = [
-            {x: Math.floor(colunas / 2), y: Math.floor(linhas / 2)},
-          ];
-          direcao = 'direita';
-          pontos = 0;
-          comida = gerarComida();
-        }
-        ctx.font = '24px Arial';
-        ctx.fillStyle = 'black';
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'top';
-        ctx.fillText(`Pontos: ${pontos}`, 10, 10);
+        atualizarJogo();
         setTimeout(desenhar, 100);
       }
     }
@@ -189,4 +198,5 @@
     desenhar();
   </script>
 </body>
-</html>
+  </html>
+  
