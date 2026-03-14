@@ -3,31 +3,78 @@
 <head>
   <title>Jogo da Cobra</title>
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      background-color: #f0f0f0;
-    }
-    #canvas {
+    canvas {
       border: 1px solid black;
+    }
+    .controles {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .controles button {
+      width: 50px;
+      height: 50px;
+      margin: 5px;
+      font-size: 24px;
     }
   </style>
 </head>
 <body>
   <canvas id="canvas" width="400" height="400"></canvas>
+  <div class="controles">
+    <button id="cima">↑</button>
+  </div>
+  <div class="controles">
+    <button id="esquerda">←</button>
+    <button id="baixo">↓</button>
+    <button id="direita">→</button>
+  </div>
   <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     const escala = 20;
+    const linhas = canvas.height / escala;
+    const colunas = canvas.width / escala;
+
     let cobra = [
-      {x: 5, y: 5},
-      {x: 6, y: 5},
-      {x: 7, y: 5},
+      {x: Math.floor(colunas / 2), y: Math.floor(linhas / 2)},
     ];
     let direcao = 'direita';
-    let comida = {x: Math.floor(Math.random() * 19) + 1, y: Math.floor(Math.random() * 19) + 1};
+    let comida = gerarComida();
     let pontos = 0;
+
+    document.addEventListener('keydown', (e) => {
+      controlar(e.key);
+    });
+
+    document.getElementById('cima').addEventListener('click', () => controlar('ArrowUp'));
+    document.getElementById('baixo').addEventListener('click', () => controlar('ArrowDown'));
+    document.getElementById('esquerda').addEventListener('click', () => controlar('ArrowLeft'));
+    document.getElementById('direita').addEventListener('click', () => controlar('ArrowRight'));
+
+    function controlar(key) {
+      switch (key) {
+        case 'ArrowUp':
+          if (direcao !== 'baixo') direcao = 'cima';
+          break;
+        case 'ArrowDown':
+          if (direcao !== 'cima') direcao = 'baixo';
+          break;
+        case 'ArrowLeft':
+          if (direcao !== 'direita') direcao = 'esquerda';
+          break;
+        case 'ArrowRight':
+          if (direcao !== 'esquerda') direcao = 'direita';
+          break;
+      }
+    }
+
+    function gerarComida() {
+      return {
+        x: Math.floor(Math.random() * colunas),
+        y: Math.floor(Math.random() * linhas),
+      };
+    }
 
     function desenhar() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -35,18 +82,13 @@
         ctx.fillStyle = 'green';
         ctx.fillRect(parte.x * escala, parte.y * escala, escala, escala);
       });
+
       ctx.fillStyle = 'red';
       ctx.fillRect(comida.x * escala, comida.y * escala, escala, escala);
-      ctx.font = '24px Arial';
-      ctx.fillStyle = 'black';
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'top';
-      ctx.fillText(`Pontos: ${pontos}`, 10, 10);
-    }
 
-    function atualizar() {
       let cabeca = cobra[0];
       let novaCabeca;
+
       switch (direcao) {
         case 'cima':
           novaCabeca = {x: cabeca.x, y: cabeca.y - 1};
@@ -61,56 +103,41 @@
           novaCabeca = {x: cabeca.x + 1, y: cabeca.y};
           break;
       }
+
       cobra.unshift(novaCabeca);
+
       if (novaCabeca.x === comida.x && novaCabeca.y === comida.y) {
         pontos++;
-        comida = {x: Math.floor(Math.random() * 19) + 1, y: Math.floor(Math.random() * 19) + 1};
+        comida = gerarComida();
       } else {
         cobra.pop();
       }
+
       if (
         novaCabeca.x < 0 ||
-        novaCabeca.x >= 20 ||
+        novaCabeca.x >= colunas ||
         novaCabeca.y < 0 ||
-        novaCabeca.y >= 20 ||
+        novaCabeca.y >= linhas ||
         cobra.slice(1).some((parte) => parte.x === novaCabeca.x && parte.y === novaCabeca.y)
       ) {
         alert(`Fim de jogo! Pontuação: ${pontos}`);
         cobra = [
-          {x: 5, y: 5},
-          {x: 6, y: 5},
-          {x: 7, y: 5},
+          {x: Math.floor(colunas / 2), y: Math.floor(linhas / 2)},
         ];
         direcao = 'direita';
         pontos = 0;
-        comida = {x: Math.floor(Math.random() * 19) + 1, y: Math.floor(Math.random() * 19) + 1};
+        comida = gerarComida();
       }
+
+      ctx.font = '24px Arial';
+      ctx.fillStyle = 'black';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      ctx.fillText(`Pontos: ${pontos}`, 10, 10);
     }
 
-    function loop() {
-      atualizar();
-      desenhar();
-      setTimeout(loop, 100);
-    }
-
-    document.addEventListener('keydown('keydown', (e) => {
-      switch (e.key) {
-        case 'ArrowUp':
-          if (direcao !== 'baixo') direcao = 'cima';
-          break;
-        case 'ArrowDown':
-          if (direcao !== 'cima') direcao = 'baixo';
-          break;
-        case 'ArrowLeft':
-          if (direcao !== 'direita') direcao = 'esquerda';
-          break;
-        case 'ArrowRight':
-          if (direcao !== 'esquerda') direcao = 'direita';
-          break;
-      }
-    });
-
-    loop();
+    setInterval(desenhar, 100);
   </script>
 </body>
-</html>
+  </html>
+  
