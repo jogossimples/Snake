@@ -12,17 +12,16 @@
       font-weight: bold;
     }
     #botao {
-      width: 200px;
-      height: 50px;
-      font-size: 24px;
-      background-color: #4CAF50;
-      color: #fff;
+      width: 150px;
+      height: auto;
       border: none;
-      border-radius: 5px;
+      background: transparent;
       cursor: pointer;
+      padding: 0;
     }
-    #botao:hover {
-      background-color: #3e8e41;
+    #botao img {
+      width: 100%;
+      height: auto;
     }
     #upgrade {
       width: 200px;
@@ -59,12 +58,13 @@
       width: 300px;
       margin: 20px auto;
       padding: 20px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      background-color: #f0f0f0;
+      border: 2px solid #5D3FD3;
+      border-radius: 8px;
+      background-color: #E6E6FA;
     }
     #loja h2 {
       margin-top: 0;
+      color: #5D3FD3;
     }
     #loja ul {
       list-style: none;
@@ -72,35 +72,45 @@
       margin: 0;
     }
     #loja li {
-      margin-bottom: 10px;
+      margin-bottom: 15px;
+      color: #2F4F4F;
     }
     #loja button {
       width: 100px;
       height: 30px;
       font-size: 16px;
-      background-color: #4CAF50;
+      background-color: #5D3FD3;
       color: #fff;
       border: none;
       border-radius: 5px;
       cursor: pointer;
     }
     #loja button:hover {
-      background-color: #3e8e41;
+      background-color: #483D8B;
     }
     #som-icon {
       font-size: 24px;
       cursor: pointer;
+    }
+    #loja-icon {
+      font-size: 24px;
+      cursor: pointer;
+      margin: 0 10px;
     }
   </style>
 </head>
 <body>
   <h1>Jogo de Clicker</h1>
   <p id="contador">0</p>
-  <button id="botao">Clique aqui!</button>
+  <button id="botao">
+    <img src="https://upload.wikimedia.org/wikipedia/en/thumb/9/9d/Minecraft_Steve.png/220px-Minecraft_Steve.png" alt="Steve do Minecraft">
+  </button>
   <p id="mensagem"></p>
   <button id="upgrade">Upgrade (Custo: 10)</button>
   <p id="nivel">Nível: 1</p>
-  <div id="loja">
+  <span id="loja-icon">&#128722;</span>
+  <span id="som-icon">&#128266;</span>
+  <div id="loja" style="display: none;">
     <h2>Loja</h2>
     <ul>
       <li>
@@ -113,9 +123,8 @@
       </li>
     </ul>
   </div>
-  <audio id="som-clique" src="https:                                                                 
-  <audio id="som-upgrade" src="https://freesound.org/data/previews/187/187130_2567799-lq.mp3"></audio>
-  <span id="som-icon">&#128266;</span>
+  <audio id="som-clique" src="">
+  <audio id="som-upgrade" src="">
   <script>
     let contador = 0;
     let multiplicador = 1;
@@ -124,27 +133,27 @@
     let velocidade = 1;
     let somAtivo = true;
 
-    // Carregar progresso
-    if (localStorage.getItem('contador')) {
-      contador = parseInt(localStorage.getItem('contador')) || 0;
-      multiplicador = parseInt(localStorage.getItem('multiplicador')) || 1;
-      custo = parseInt(localStorage.getItem('custo')) || 10;
-      nivel = parseInt(localStorage.getItem('nivel')) || 1;
-      velocidade = parseInt(localStorage.getItem('velocidade')) || 1;
-      document.getElementById('contador').innerHTML = contador;
-      document.getElementById('nivel').innerHTML = `Nível: ${nivel}`;
-      document.getElementById('upgrade').innerHTML = `Upgrade (Custo: ${custo})`;
-    }
+    // Carregar progresso com verificação de valores válidos
+    contador = parseInt(localStorage.getItem('contador')) || 0;
+    multiplicador = parseInt(localStorage.getItem('multiplicador')) || 1;
+    custo = parseInt(localStorage.getItem('custo')) || 10;
+    nivel = parseInt(localStorage.getItem('nivel')) || 1;
+    velocidade = parseInt(localStorage.getItem('velocidade')) || 1;
+
+    document.getElementById('contador').innerHTML = contador;
+    document.getElementById('nivel').innerHTML = `Nível: ${nivel}`;
+    document.getElementById('upgrade').innerHTML = `Upgrade (Custo: ${custo})`;
+    verificarMultiplicador(); // Chama ao carregar o jogo
 
     document.getElementById('botao').addEventListener('click', () => {
       contador += multiplicador * velocidade;
       document.getElementById('contador').innerHTML = contador;
       criarParticula();
-      if (somAtivo) {
-        document.getElementById('som-clique').play();
-      }
       verificarMultiplicador();
       salvarProgresso();
+      if (somAtivo) {
+        document.getElementById('som-clique').play().catch(() => {}); // Trata erro do som vazio
+      }
     });
 
     document.getElementById('upgrade').addEventListener('click', () => {
@@ -157,14 +166,15 @@
         document.getElementById('upgrade').innerHTML = `Upgrade (Custo: ${custo})`;
         document.getElementById('contador').innerHTML = contador;
         document.getElementById('mensagem').innerHTML = `Multiplicador aumentado para ${multiplicador}!`;
-        if (somAtivo) {
-          document.getElementById('som-upgrade').play();
-        }
         setTimeout(() => {
           document.getElementById('mensagem').innerHTML = '';
         }, 3000);
-        salvarProgresso();
+        if (somAtivo) {
+          document.getElementById('som-upgrade').play().catch(() => {});
+        }
       }
+      verificarMultiplicador();
+      salvarProgresso();
     });
 
     document.getElementById('comprar-multiplicador').addEventListener('click', () => {
@@ -173,14 +183,15 @@
         contador -= 100;
         document.getElementById('contador').innerHTML = contador;
         document.getElementById('mensagem').innerHTML = `Multiplicador aumentado para ${multiplicador}!`;
-        if (somAtivo) {
-          document.getElementById('som-upgrade').play();
-        }
         setTimeout(() => {
           document.getElementById('mensagem').innerHTML = '';
         }, 3000);
-        salvarProgresso();
+        if (somAtivo) {
+          document.getElementById('som-upgrade').play().catch(() => {});
+        }
       }
+      verificarMultiplicador();
+      salvarProgresso();
     });
 
     document.getElementById('comprar-velocidade').addEventListener('click', () => {
@@ -189,22 +200,32 @@
         contador -= 50;
         document.getElementById('contador').innerHTML = contador;
         document.getElementById('mensagem').innerHTML = `Velocidade aumentada para ${velocidade}!`;
-        if (somAtivo) {
-          document.getElementById('som-upgrade').play();
-        }
         setTimeout(() => {
           document.getElementById('mensagem').innerHTML = '';
         }, 3000);
-        salvarProgresso();
+        if (somAtivo) {
+          document.getElementById('som-upgrade').play().catch(() => {});
+        }
       }
+      verificarMultiplicador();
+      salvarProgresso();
     });
 
     document.getElementById('som-icon').addEventListener('click', () => {
       somAtivo = !somAtivo;
       if (somAtivo) {
-        document.getElementById('som-icon').innerHTML = '&          
+        document.getElementById('som-icon').innerHTML = '&#128266;';
       } else {
         document.getElementById('som-icon').innerHTML = '&#128263;';
+      }
+    });
+
+    document.getElementById('loja-icon').addEventListener('click', () => {
+      const loja = document.getElementById('loja');
+      if (loja.style.display === 'none') {
+        loja.style.display = 'block';
+      } else {
+        loja.style.display = 'none';
       }
     });
 
@@ -233,9 +254,6 @@
       localStorage.setItem('nivel', nivel);
       localStorage.setItem('velocidade', velocidade);
     }
-
-    // Salvar progresso a cada 10 segundos
-    setInterval(salvarProgresso, 10000);
   </script>
 </body>
   </html>
