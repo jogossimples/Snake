@@ -7,7 +7,7 @@
       margin: 0;
       padding: 0;
       overflow: hidden;
-      background-color: #fff;
+      background-color: #3E8E41;
     }
     #canvas {
       width: 100%;
@@ -33,7 +33,7 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background-color: #fff;
+      background-color: #3E8E41;
       padding: 20px;
       border: 1px solid black;
       text-align: center;
@@ -128,7 +128,8 @@
     }
     function desenhar() {
       if (jogoIniciado) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '         
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         cobra.forEach((parte, index) => {
           if (index === 0) {
             ctx.fillStyle = 'green';
@@ -211,4 +212,5 @@
     }
   </script>
 </body>
-</html>
+  </html>
+  
