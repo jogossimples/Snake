@@ -1,15 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Jogo da Cobra</title>
   <style>
-    canvas {
-      border: 1px solid black;
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #fff;
+    }
+    #canvas {
+      width: 100vw;
+      height: 100vh;
+      border: none;
     }
     .controles {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
       display: flex;
       justify-content: center;
-      margin-top: 20px;
     }
     .controles button {
       width: 50px;
@@ -20,7 +32,7 @@
   </style>
 </head>
 <body>
-  <canvas id="canvas" width="400" height="400"></canvas>
+  <canvas id="canvas"></canvas>
   <div class="controles">
     <button id="cima">↑</button>
   </div>
@@ -33,8 +45,11 @@
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     const escala = 20;
-    const linhas = canvas.height / escala;
-    const colunas = canvas.width / escala;
+    const linhas = Math.floor(window.innerHeight / escala);
+    const colunas = Math.floor(window.innerWidth / escala);
+    canvas.width = colunas * escala;
+    canvas.height = linhas * escala;
+
     let cobra = [
       {x: Math.floor(colunas / 2), y: Math.floor(linhas / 2)},
     ];
@@ -154,4 +169,5 @@
     setInterval(desenhar, 100);
   </script>
 </body>
-</html>
+  </html>
+  
