@@ -38,7 +38,7 @@
   </style>
 </head>
 <body>
-  <canvas id="canvas" width="400" height="400" style="display: none;"></canvas>
+  <canvas id="canvas" style="display: none;"></canvas>
   <div id="inicio">
     <h1>Jogo da Cobra</h1>
     <button id="start">Start</button>
@@ -56,8 +56,11 @@
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     const escala = 20;
+    canvas.width = window.innerWidth / 2;
+    canvas.height = window.innerHeight / 2;
     const linhas = canvas.height / escala;
     const colunas = canvas.width / escala;
+
     let cobra = [
       {x: Math.floor(colunas / 2), y: Math.floor(linhas / 2)},
     ];
