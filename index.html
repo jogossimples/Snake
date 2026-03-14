@@ -3,8 +3,16 @@
 <head>
   <title>Jogo da Cobra</title>
   <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #f0f0f0;
+    }
     canvas {
       border: 1px solid black;
+      width: 100%;
+      height: 80vh;
     }
     .controles {
       display: flex;
@@ -12,15 +20,15 @@
       margin-top: 20px;
     }
     .controles button {
-      width: 50px;
-      height: 50px;
-      margin: 5px;
-      font-size: 24px;
+      width: 80px;
+      height: 80px;
+      margin: 10px;
+      font-size: 40px;
     }
   </style>
 </head>
 <body>
-  <canvas id="canvas" width="400" height="400"></canvas>
+  <canvas id="canvas"></canvas>
   <div class="controles">
     <button id="cima">↑</button>
   </div>
@@ -32,10 +40,11 @@
   <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight * 0.8;
     const escala = 20;
-    const linhas = canvas.height / escala;
-    const colunas = canvas.width / escala;
-
+    const linhas = Math.floor(canvas.height / escala);
+    const colunas = Math.floor(canvas.width / escala);
     let cobra = [
       {x: Math.floor(colunas / 2), y: Math.floor(linhas / 2)},
     ];
@@ -46,7 +55,6 @@
     document.addEventListener('keydown', (e) => {
       controlar(e.key);
     });
-
     document.getElementById('cima').addEventListener('click', () => controlar('ArrowUp'));
     document.getElementById('baixo').addEventListener('click', () => controlar('ArrowDown'));
     document.getElementById('esquerda').addEventListener('click', () => controlar('ArrowLeft'));
@@ -82,13 +90,10 @@
         ctx.fillStyle = 'green';
         ctx.fillRect(parte.x * escala, parte.y * escala, escala, escala);
       });
-
       ctx.fillStyle = 'red';
       ctx.fillRect(comida.x * escala, comida.y * escala, escala, escala);
-
       let cabeca = cobra[0];
       let novaCabeca;
-
       switch (direcao) {
         case 'cima':
           novaCabeca = {x: cabeca.x, y: cabeca.y - 1};
@@ -103,16 +108,13 @@
           novaCabeca = {x: cabeca.x + 1, y: cabeca.y};
           break;
       }
-
       cobra.unshift(novaCabeca);
-
       if (novaCabeca.x === comida.x && novaCabeca.y === comida.y) {
         pontos++;
         comida = gerarComida();
       } else {
         cobra.pop();
       }
-
       if (
         novaCabeca.x < 0 ||
         novaCabeca.x >= colunas ||
@@ -128,7 +130,6 @@
         pontos = 0;
         comida = gerarComida();
       }
-
       ctx.font = '24px Arial';
       ctx.fillStyle = 'black';
       ctx.textAlign = 'left';
@@ -139,5 +140,4 @@
     setInterval(desenhar, 100);
   </script>
 </body>
-  </html>
-  
+</html>
